@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Mapped, DeclarativeBase, mapped_column, relationship
 from sqlalchemy import String, Integer, Float
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FloatField, SelectField
+from wtforms import StringField, SubmitField, FloatField, SelectField, DateField
 from wtforms.validators import DataRequired
 from datetime import date
 
@@ -46,14 +46,19 @@ class Food(db.Model):
 
 with app.app_context():
     db.create_all()
-# Creating the table for phe calculations
+
+
+class DateForm(FlaskForm):
+    date = DateField("CHOSE DATE", default=date.today())
+    submit = SubmitField("Show History")
 
 
 # Creating the input form for the calculation
 class PheForm(FlaskForm):
-    food = SelectField('Food', validators=[DataRequired()],render_kw={"placeholder": "Select food here"}, choices=[])
+    food = SelectField('Food', validators=[DataRequired()], render_kw={"placeholder": "Select food here"}, choices=[])
     weight = FloatField("Weight", validators=[DataRequired()], render_kw={"placeholder": "Enter the weight in grams"})
-    submit = SubmitField("Calculate PHE", name="submit_phe")
+    date = DateField("Chose the date", default=date.today())
+    submit1 = SubmitField("Calculate PHE", name="submit_phe")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -67,40 +72,28 @@ class DataForm(FlaskForm):
     submit = SubmitField("Save")
 
 
-# Creating the date form for the days
-class DateForm(FlaskForm):
-    date = SelectField("Date", validators=[DataRequired()], render_kw={"placeholder": "Select a date"})
-    submit = SubmitField("Confirm", name="submit_date")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        date_choices = [c.date for c in FoodIntake.query.all()]
-        date_choices = set(date_choices)
-        self.date.choices = list(date_choices)
+@app.route("/", methods=["GET","POST"])
+def welcome():
+    return render_template("welcome.html")
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/home", methods=["GET", "POST"])
 def home():
     phe_form = PheForm()
-    date_form = DateForm()
-    date_to_filter = date.today().strftime("%B %d, %Y")
-    date_data = db.session.execute(db.select(FoodIntake).filter_by(date=date_to_filter)).scalars().all()
-    if date_form.validate_on_submit():
-        date_to_filter = date_form.date.data
-        date_data = db.session.execute(db.select(FoodIntake).filter_by(date=date_to_filter)).scalars().all()
+    date_data = db.session.execute(db.select(FoodIntake).filter_by(date=date.today())).scalars().all()
+    total_phe = sum(food_intake.phe for food_intake in date_data)
     if phe_form.validate_on_submit():
         result = db.get_or_404(Food, phe_form.food.data)
         food_taken = FoodIntake(
-                food=result.food,
-                phe=(result.phe * phe_form.weight.data) / 100,
-                weight=phe_form.weight.data,
-                date=date.today().strftime("%B %d, %Y")
-                )
+                        food=result.food,
+                        phe=(result.phe * phe_form.weight.data) / 100,
+                        weight=phe_form.weight.data,
+                        date=phe_form.date.data
+                    )
         db.session.add(food_taken)
         db.session.commit()
-
         return redirect(url_for('home'))
-    return render_template("index.html", form=phe_form, foods=date_data, date_form=date_form)
+    return render_template("index.html", form=phe_form, foods=date_data, phe=total_phe)
 
 
 @app.route("/input_data", methods=["GET", "POST"])
@@ -117,6 +110,16 @@ def data_input():
         db.session.commit()
         return redirect(url_for('data_input'))
     return render_template('addFood.html', form=data_form, foods=foods)
+
+
+@app.route("/history", methods=["GET", "POST"])
+def history():
+    date_form = DateForm()
+    date_data = db.session.execute(db.select(FoodIntake).filter_by(date=date_form.date.data)).scalars().all()
+    total_phe = sum(food_intake.phe for food_intake in date_data)
+    return render_template("history.html", form=date_form, foods=date_data, phe = total_phe)
+
+
 
 
 if __name__ == "__main__":

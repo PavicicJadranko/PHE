@@ -18,11 +18,13 @@
             {{ render_form(form) }}
             <hr>
             <a href="{{ url_for('data_input')}}" type="button" class="btn btn-success">Add Food</a>
+            <a href="{{ url_for('history')}}" type="button" class="btn btn-danger">Show History</a>
             <br>
             <br>
+
             <H3>Food Table</H3>
             <hr>
-            {{ render_form(date_form) }}
+
             <table class="table table-striped table-hover">
   <thead>
     <tr>
@@ -42,7 +44,9 @@
   {%endfor%}
   </tbody>
 </table>
+            <h3>Total PHE : {{phe}}</h3>
         </div>
+
 
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
