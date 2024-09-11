@@ -1,42 +1,109 @@
-{% from 'bootstrap5/form.html' import render_form %}
+<!-- history.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% from 'bootstrap5/form.html' import render_form %}
     <meta charset="UTF-8">
     <title>History PHE input</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/styles.css">
+    <style>
+        .scrolling-table {
+            overflow-y: auto;
+            height: 500px; /* adjust the height to your liking */
+        }
+    </style>
 </head>
 <body>
 <div class="container">
-{{ render_form(form) }}
-    <br>
-    <a href="{{ url_for('home')}}" type="button" class="btn btn-danger">Go Back</a>
-    <br>
-<H3>Food Table</H3>
-            <hr>
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+      <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+          <img src="static/welcom.jpg" height="50" width="50"></img>
+        <span class="fs-4">   PHE Calculator</span>
+      </a>
 
-            <table class="table table-striped table-hover">
-  <thead>
-    <tr>
-      <th>Name</th>
-        <th>Weight in grams</th>
-      <th>PHE</th>
-    </tr>
-  </thead>
-  <tbody id="table-body">
-    <!-- data will be rendered here -->
-  {%for food in foods%}
-    <tr>
-        <td>{{food.food}}</td>
-        <td>{{food.weight}}</td>
-        <td>{{food.phe}}</td>
-    </tr>
-  {%endfor%}
+      <ul class="nav nav-pills">
+        <li class="nav-item"><a href="{{ url_for('welcome')}}" class="nav-link active" aria-current="page">Home</a></li>
+        <li class="nav-item"><a href="{{ url_for('data_input')}}" class="nav-link">Add Food</a></li>
+        <li class="nav-item"><a href="{{ url_for('history')}}" class="nav-link">Show History</a></li>
 
+      </ul>
+    </header>
+  </div>
+    <div class="container">
+        <h1 class>History of the PHE input</h1>
+        <div class="row">
+            <div class="col-md-4">
+                {{ render_form(form) }}
+                <br>
+                <a href="{{ url_for('welcome')}}" type="button" class="btn btn-warning">Go Back</a>
+                <a href="{{ url_for('pdf_convert', sd=sd,ed=ed)}}" type="button" class="btn btn-danger">Convert to PDF</a>
+            </div>
+            <div class="col-md-8">
+                <H3 class="text-secondary">Food Table</H3>
+                <hr>
+                <div class="date-container scrolling-table">
+                    {% for date in dates %}
+                    <div class="card mb-2">
+                        <h3 class="card-header">{{date}}</h3>
+                        <div class="card-body">
+                            {% for meal_type in ['Breakfast', 'Lunch', 'Dinner', 'Snack'] %}
+                            <h4 class="meal-type" >{{ meal_type }}</h4>
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30%;">Name</th>
+                                        <th style="width: 30%;">Weight in grams</th>
+                                        <th style="width30%;">PHE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for food in foods %}
+                                    {% if food.date == date %}
+                                    {% if food.meals == meal_type %}
+                                    <tr>
+                                        <td class="tr">{{ food.food }}</td>
+                                        <td class="tr">{{ food.weight }}</td>
+                                        <td class="tr">{{ food.phe }}</td>
+                                        <td class="tr"><a href="{{ url_for('delete_input', input_id=food.id)}}"><i class="bi bi-trash-fill"></i><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+  <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+</svg> </a></td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <h3 class="text-centered">Total PHE : {{phe[date]}}</h3>
+                    {% endfor %}
+                    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      {% for message in messages %}
+      <p class="flash">{{ message }}</p>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+                </div>
+
+
+            </div>
+        </div>
+       <div class="container">
+  <footer class="py-3 my-4">
+    <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+      <li class="nav-item"><a href="{{ url_for('welcome')}}" class="nav-link px-2 text-body-secondary">Home</a></li>
+        <li class="nav-item"><a href="{{ url_for('data_input')}}" class="nav-link px-2 text-body-secondary">Add Food</a></li>
+        <li class="nav-item"><a href="{{ url_for('history')}}" class="nav-link px-2 text-body-secondary">Show History</a></li>
+
+    </ul>
+    <p class="text-center text-body-secondary">© 2024 Company, Inc</p>
+  </footer>
 </div>
-  </tbody>
-</table>
-<h3>Total PHE : {{phe}}</h3>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-</body>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    </body>
 </html>
