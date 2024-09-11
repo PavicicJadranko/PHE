@@ -1,0 +1,138 @@
+
+body {
+    background-color: #f7f7f7;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.date-container {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.table thead tr {
+    background-color: #B2E6CE;
+}
+
+.table td, .table th {
+    border: none;
+    font-size: 16px;
+    color: #333;
+    background-color: #ADD8E6;
+}
+
+.table td {
+    font-weight: 400;
+}
+
+.table th {
+    font-weight: 600;
+    color: #134B70
+}
+
+h1, h2, h3 {
+    font-weight: 700;
+    color: #212529;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+h3 {
+    font-size: 20px;
+
+}
+
+.btn {
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: #337ab7;
+    border-color: #337ab7;
+    color: #fff;
+}
+
+.meal-type {
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    color: #201E43;
+    font-weight: bold;
+
+}
+.card-header{
+color: green;
+}
+
+.text-centered{
+text-align: center;
+}
+.card-body{
+background: #EEEEEE
+}
+.date-container{
+background: #EEEEEE
+}
+.fs-4 {
+  font-size: 2.0rem; /* adjust font size to your liking */
+  font-weight: 600; /* bold font weight */
+  color: #333; /* dark gray color */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* subtle text shadow */
+  letter-spacing: 0.05em; /* slight letter spacing */
+  padding-left: 10px; /* adjust the value as needed */
+  padding-right: 10px; /* adjust the value as needed */
+}
+
+.fs-4:hover {
+  color: #555; /* darker gray color on hover */
+  text-decoration: none; /* remove underline on hover */
+}
+.flash {
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+  color: #3e8e41;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+
