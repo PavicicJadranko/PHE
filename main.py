@@ -162,7 +162,7 @@ def pdf_convert(sd, ed):
     pdf = fpdf.FPDF()
 
     # set font and font size
-    pdf.set_font("Arial", size=8)  # reduced font size from 10 to 8
+    pdf.set_font("Arial", size=8)
 
     # initialize table counters
     tables_on_page = 0
