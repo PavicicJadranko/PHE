@@ -1,12 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap5
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import Mapped, DeclarativeBase, mapped_column
-from sqlalchemy import String, Integer, Float
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FloatField, SelectField, DateField
-from wtforms.validators import DataRequired
-from datetime import date, timedelta
+from Models import db, FoodIntake, Food
+from Forms import PheForm, DateForm, DataForm
 import fpdf
 
 
@@ -16,64 +11,12 @@ app.config['SECRET_KEY'] = 'PHEcalculator123'
 Bootstrap5(app)
 
 
-# Creating the main database for the food data
-class Base(DeclarativeBase):
-    pass
-
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_database.db'
-db = SQLAlchemy(model_class=Base)
 db.init_app(app)
-
-
-# Creating a table for the food intake
-class FoodIntake(db.Model):
-    __tablename__ = "FoodIntake"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    food: Mapped[str] = mapped_column(String, unique=False, nullable=False)
-    phe: Mapped[float] = mapped_column(Float, nullable=False)
-    date: Mapped[str] = mapped_column(String(250), nullable=False)
-    weight: Mapped[float] = mapped_column(Float, nullable=False)
-    meals: Mapped[str] = mapped_column(String, nullable=False)
-
-
-# Creating a table for the food
-class Food(db.Model):
-    __tablename__ = "FoodDB"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    food: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    phe: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
 with app.app_context():
     db.create_all()
-
-
-class DateForm(FlaskForm):
-    start_date = DateField("Start Date", default=date.today(), validators=[DataRequired()])
-    end_date = DateField("End Date", default=date.today() + timedelta(1), validators=[DataRequired()])
-    submit = SubmitField("Show History")
-
-
-# Creating the input form for the calculation
-class PheForm(FlaskForm):
-    food = SelectField('Food', validators=[DataRequired()], render_kw={"placeholder": "Select food here"}, choices=[])
-    weight = FloatField("Weight", validators=[DataRequired()], render_kw={"placeholder": "Enter the weight in grams"})
-    date = DateField("Chose the date", default=date.today())
-    meals = SelectField('Meals', validators=[DataRequired()], render_kw={"placeholder": "Select meal here"},
-                        choices=['Breakfast', 'Lunch', 'Dinner', 'Snack'])
-    submit1 = SubmitField("Calculate PHE", name="submit_phe")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.food.choices = [(c.id, c.food) for c in Food.query.all()]
-
-
-# Creating the input form for the database creation
-class DataForm(FlaskForm):
-    food = StringField("Food", validators=[DataRequired()], render_kw={"placeholder": "Enter food name"})
-    phe = FloatField("Phe", validators=[DataRequired()], render_kw={"placeholder": "Enter the Phe in 100 grams"})
-    submit = SubmitField("Save")
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -98,7 +41,7 @@ def home():
         db.session.add(food_taken)
         db.session.commit()
         return redirect(url_for('home'))
-    return render_template("index.html", form=phe_form, foods=date_data, phe=total_phe)
+    return render_template("calculator.html", form=phe_form, foods=date_data, phe=total_phe)
 
 
 @app.route("/input_data", methods=["GET", "POST"])
